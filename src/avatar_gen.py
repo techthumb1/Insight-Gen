@@ -1,11 +1,10 @@
 import requests
 import os
 from dotenv import load_dotenv
-import base64
 
 # Load environment variables
 load_dotenv()
-DID_API_KEY = os.getenv("DID_API_KEY")  # Ensure format is username:password
+DID_API_KEY = os.getenv("DID_API_KEY")  # This is your single API key
 
 def create_did_avatar_video(response_text, avatar_id="default", output_filename="output/avatar_videos/did_avatar_video.mp4"):
     """
@@ -17,20 +16,16 @@ def create_did_avatar_video(response_text, avatar_id="default", output_filename=
     # Define D-ID API endpoint and headers
     url = "https://api.d-id.com/v1/talks"
     
-    # Verify DID_API_KEY is correctly loaded and format it for Basic Authentication
+    # Ensure DID_API_KEY is loaded correctly
     if DID_API_KEY is None:
         print("Error: DID_API_KEY is not set. Check your .env file.")
         return None
 
-    # Encode the username:password as Base64
-    encoded_api_key = base64.b64encode(DID_API_KEY.encode()).decode("utf-8")
+    # Use the API key as a Bearer token in the Authorization header
     headers = {
-        "Authorization": f"Basic {encoded_api_key}",
+        "Authorization": f"Bearer {DID_API_KEY}",
         "Content-Type": "application/json"
     }
-
-    # Print to verify that the Authorization header is correctly formatted
-    print("Authorization Header:", headers["Authorization"])  # Debugging: check header format
 
     # Payload with text and avatar settings
     payload = {
@@ -62,7 +57,7 @@ def create_did_avatar_video(response_text, avatar_id="default", output_filename=
         print(f"Avatar video saved to {output_filename}")
         return output_filename
     elif response.status_code == 401:
-        print("Error: Unauthorized. Check your API key and ensure it's in the format username:password.")
+        print("Error: Unauthorized. Check your API key.")
     elif response.status_code == 403:
         print("Error: Forbidden. This typically indicates a problem with the Authorization header.")
     else:

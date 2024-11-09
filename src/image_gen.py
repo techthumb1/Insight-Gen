@@ -1,11 +1,20 @@
 import openai
-from transformers import DallE, pipeline
-from torchvision import transforms
+#from transformers import DallE, pipeline
+#from torchvision import transforms
 import requests
+from dotenv import load_dotenv
+import os
 
-# Generate an image using DALL-E
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 def generate_dalle_image(prompt, output_filename="output/dalle_image.png"):
-    response = openai.Image.create(prompt=prompt, n=1, size="1024x1024")
+    response = openai.Image.create(
+        prompt=prompt,
+        n=1,
+        size="1024x1024"
+    )
     image_url = response['data'][0]['url']
     image_data = requests.get(image_url).content
     with open(output_filename, 'wb') as f:
@@ -18,5 +27,7 @@ def generate_biggan_image(class_label):
     # Placeholder for BigGAN image generation code
     pass  # BigGAN typically requires class-conditioned labels and latent vectors
 
-# Example Usage
-generate_dalle_image("A futuristic cityscape illustrating AI advancements")
+# Generate
+if __name__ == "__main__":
+    prompt = "A futuristic cityscape illustrating AI advancements"
+    generate_dalle_image(prompt)
