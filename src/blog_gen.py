@@ -17,7 +17,7 @@ def assemble_blog_post(title, sections, images, videos):
     print("Blog post assembled and saved as final_blog_post.md")
     return blog_post
 
-# Example Usage
+# Test the function
 if __name__ == "__main__":
     title = "Exploring Generative AI for 2025"
     sections = {
@@ -27,4 +27,5 @@ if __name__ == "__main__":
     images = [{"alt": "AI Trends", "path": "output/infographic.png"}]
     videos = [{"title": "AI Overview", "path": "output/generated_avatar_video.mp4"}]
     
+    # Assemble the blog post
     assemble_blog_post(title, sections, images, videos)

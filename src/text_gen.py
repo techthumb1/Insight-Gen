@@ -1,37 +1,77 @@
-from transformers import LongT5ForConditionalGeneration, AutoTokenizer, pipeline
+import openai
+from transformers import T5ForConditionalGeneration, AutoTokenizer
 import torch
+from dotenv import load_dotenv
+import os
 
-# Initialize LongT5 model and tokenizer for generating long-form content
-model_name = "google/long-t5-tglobal-base"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = LongT5ForConditionalGeneration.from_pretrained(model_name)
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def generate_long_text(prompt, max_length=1024):
-    inputs = tokenizer(prompt, return_tensors="pt")
-    output = model.generate(inputs.input_ids, max_length=max_length, num_beams=4, early_stopping=True)
-    text = tokenizer.decode(output[0], skip_special_tokens=True)
-    return text
+# Initialize T5 for summarization
+t5_model_name = "t5-small"
+t5_tokenizer = AutoTokenizer.from_pretrained(t5_model_name)
+t5_model = T5ForConditionalGeneration.from_pretrained(t5_model_name)
 
-# Using BERT for Summarization
-summarizer = pipeline("summarization", model="bert-large-uncased")
+# Check for GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+t5_model.to(device)
 
-def summarize_text(text):
-    summary = summarizer(text, max_length=100, min_length=30, do_sample=False)
-    return summary[0]['summary_text']
-
-def generate_blog_post(topic, structure=["Introduction", "Key Points", "Conclusion"]):
+def generate_structured_content(prompt, section):
     """
-    Generates a blog post on a given topic with the specified structure.
+    Generates structured content for a specific section using the OpenAI Completion API.
     """
-    prompt = f"Write a blog post on the topic: {topic}. The structure should include the following sections:\n\n"
-    for section in structure:
-        prompt += f"## {section}\n\n"
-    long_text = generate_long_text(prompt)
-    return long_text
+    full_prompt = f"{prompt}\n\nPlease provide a detailed section on '{section}':"
+    try:
+        response = openai.Completion.create(
+            model="text-davinci-003",    # Replace with other models if available
+            prompt=full_prompt,
+            max_tokens=800,
+            temperature=0.7
+        )
+        content = response.choices[0].text.strip()
+        print(f"Generated Content for {section}:\n", content)
+        return content
+    except Exception as e:
+        print(f"Error generating content for {section}:", e)
+        return None
 
-# Function to generate a blog post on a specific topic
-prompt = "Explain the advancements in generative AI for 2025."
-long_text = generate_long_text(prompt)
-summary = summarize_text(long_text)
-print("Generated Long Text:", long_text)
-print("Summary:", summary)
+def summarize_section(text, max_length=100, min_length=50):
+    """
+    Summarizes a specific section using T5 with defined min/max length.
+    """
+    inputs = t5_tokenizer(text, return_tensors="pt").to(device)
+    summary_ids = t5_model.generate(
+        inputs.input_ids,
+        max_length=max_length,
+        min_length=min_length,
+        num_beams=5,
+        early_stopping=True
+    )
+    summary = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+    print("Section Summary:", summary)
+    return summary
+
+# Example Usage
+if __name__ == "__main__":
+    # General prompt for structured output
+    prompt = "Provide a comprehensive overview of advancements in generative AI for 2025, including key sections."
+
+    # Define sections
+    sections = ["Introduction", "Key Innovations", "Applications", "Challenges", "Future Trends"]
+
+    structured_content = {}
+    structured_summaries = {}
+
+    for section in sections:
+        # Step 1: Generate content for each section
+        section_content = generate_structured_content(prompt, section)
+        if section_content:
+            structured_content[section] = section_content
+
+            # Step 2: Summarize each section
+            structured_summaries[section] = summarize_section(section_content)
+    
+    # Print final structured content and summaries
+    print("\nFinal Structured Content:", structured_content)
+    print("\nFinal Summaries:", structured_summaries)

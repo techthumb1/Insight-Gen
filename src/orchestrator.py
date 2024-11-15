@@ -37,6 +37,6 @@ def generate_avatar_interaction(query):
     # Step 2: Generate Avatar Video with D-ID
     create_did_avatar_video(response_text, output_filename="output/avatar_videos/did_avatar_video.mp4")
 
-# Example usage
+# Generate full content pipeline for a given topic
 if __name__ == "__main__":
     generate_full_content_pipeline("Generative AI Trends in 2025")

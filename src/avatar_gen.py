@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-DID_API_KEY = os.getenv("DID_API_KEY")  # This is your single API key
+
+# D-ID API key
+DID_API_KEY = os.getenv("DID_API_KEY")
 
 def create_did_avatar_video(response_text, avatar_id="default", output_filename="output/avatar_videos/did_avatar_video.mp4"):
     """
@@ -38,7 +40,7 @@ def create_did_avatar_video(response_text, avatar_id="default", output_filename=
             "preset": avatar_id
         },
         "config": {
-            "stitch": True  # Optional setting; check D-ID docs for custom configurations
+            "stitch": True
         }
     }
 
@@ -65,7 +67,7 @@ def create_did_avatar_video(response_text, avatar_id="default", output_filename=
     
     return None
 
-# Example Usage
+# Run the function with a sample response text
 if __name__ == "__main__":
     response_text = "Random Forest is a versatile algorithm for classification and regression tasks. It builds multiple decision trees and aggregates their results for better accuracy."
     create_did_avatar_video(response_text)
