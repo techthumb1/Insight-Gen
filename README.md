@@ -1,6 +1,6 @@
 # Insight-Gen
 
-AI-powered content generation for AI Insights Hub, built with state-of-the-art generative models for 2025.
+AI-powered content generation for AI Insights Hub, built with state-of-the-art generative models.
 
 ## Project Structure
 
